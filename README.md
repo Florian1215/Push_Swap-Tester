@@ -13,21 +13,21 @@ git clone git@github.com:Florian1215/Push_Swap-Tester.git
 
 Evaluating test
 ```sh
-python3  push_Swap-tester/push_swap.py evaluating
+python3 push_Swap-tester/push_swap.py evaluating
 ```
 
 
 
 Leaks test
 ```sh
-python3  push_Swap-tester/push_swap.py leaks
+python3 push_Swap-tester/push_swap.py leaks
 ```
 
 
 
 Test with x args
 ```sh
-python3  push_Swap-tester/push_swap.py 500
+python3 push_Swap-tester/push_swap.py 500
 ```
 `-a` for print args testing
 
@@ -35,5 +35,5 @@ python3  push_Swap-tester/push_swap.py 500
 
 Test all combinaison of x args
 ```sh
-python3  push_Swap-tester/push_swap.py all 5
+python3 push_Swap-tester/push_swap.py all 5
 ```
