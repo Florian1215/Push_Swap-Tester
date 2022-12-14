@@ -22,6 +22,7 @@ Leaks test
 ```sh
 python3 push_Swap-tester/push_swap.py leaks
 ```
+When there are a leaks, the program stop.
 
 
 
