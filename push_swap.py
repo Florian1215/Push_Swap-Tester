@@ -1,46 +1,22 @@
-from tkinter import *
-
-
-wd = Tk()
-
-
-class p:
-    dir = '../'
-
-
-class c:
-    bg = '#151515'
-    fg = '#FFFFFF'
-
-
-def close():
-    wd.destroy()
-
-
-wd.title(''), wd.geometry('500x500'), wd.config(bg=c.bg)
-wd.option_add('font', ('Bahnschrift light', 30)), wd.option_add('background', c.bg), wd.option_add('*foreground', c.fg)
-wd.protocol('WM_DELETEWINDOW', close), wd.bind('<Control-w>', lambda: close())
-
 import os
 import sys
 import random
-import time
-
-# Errors must be output on the STDOUT
+import subprocess
 
 # python3.9 push_swap.py
-#		'digit' for specify length of args ('-a' to see test args)
+#		'number' for specify length of args ('-a' to see test args)
 #		'evaluating' for check all
 #		'leaks' for test leaks
 #		'all' test all combinaison of digit
 
 
-int_min = -10000
-int_max = 10000
-
-makefile_cmd = 'make'
+int_min = -2147483648
+int_max = 2147483647
+makefile_cmd = f'make -C ../'
 checker_path = 'checker_Mac'
-push_swap_path = 'push_swap'
+push_swap_path = f'{os.path.split(os.path.dirname(__file__))[0]}/push_swap'
+os.popen(makefile_cmd).read()
+eval_pts = {100: {'pts': {700: 5, 900: 4, 1100: 3, 1300: 2, 1500: 1}, 'max': -1}, 500: {'pts': {5500: 5, 7000: 4, 8500: 3, 10000: 2, 11500: 1}, 'max': -1}}
 
 
 # General --------------------------------------------------------
@@ -54,7 +30,7 @@ def error(string_):
 
 
 def cmd_error(args):
-    res = cmd(args)
+    res = cmd(args, True)
     if res != "Error\n":
         error(f"With '{args}' we must have \"Error\", we have '{res}'")
     else:
@@ -76,17 +52,19 @@ def cmd_parsing(args):
 
 
 def cmd_leaks(args):
-    os.system(f'leaks -atExit -- ./{push_swap_path} {args}')
-    time.sleep(0.4)
+    if os.system(f'leaks -atExit -- {push_swap_path} {args}') > 0:
+        print(f'Leaks Error ! With \'{args}\'')
+        exit()
 
 
 # CMD ------------------------------------------------------------
-def cmd(args):
-    return os.popen(f'./{push_swap_path} {args}').read()
+def cmd(args, stderror=False):
+    proc = subprocess.Popen([push_swap_path, args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return proc.stderr.read().decode() if stderror else proc.stdout.read().decode()
 
 
 def cmd_check(args):
-    return os.popen(f'./{push_swap_path} {args} | ./{checker_path} {args}').read().removesuffix('\n')
+    return os.popen(f'{push_swap_path} {args} | ./{checker_path} {args}').read().removesuffix('\n')
 
 
 def cmd_count(args):
@@ -146,149 +124,137 @@ def cmd_middle(n):
 
 # CODE ---------------------------------------------------------------
 
+if not os.path.exists(push_swap_path) or not os.path.exists(checker_path):
+    print(f'Error: don\'t find {push_swap_path} or {checker_path}')
+    exit()
 
+if 'evaluating' in sys.argv:
+    print("Error management:")
 
+    print("  Non numeric")
+    cmd_error("559 3 sdf9")
+    cmd_error("5hj 45 6 4")
+    cmd_error("5 45 6hj 4")
+    cmd_error("5 45 6 4 a")
+    cmd_error("5 45 48 s")
+    cmd_error("69 425 one 1")
+    cmd_error("5 4-5 6 58")
+    cmd_error("2 45 6 -")
+    cmd_error("2 - 6 3")
+    cmd_error("- 6 3")
+    cmd_error("1-2 6 3")
+    cmd_error("-158 6 3-5")
 
-def tester():
-    os.popen(makefile_cmd).read()
+    print("\n  Duplicate args")
+    cmd_error("2 6 3 6")
+    cmd_error("6 6 3")
+    cmd_error("3 6 3")
+    cmd_error("1 6 8 4 2 3 1")
 
-    if not os.path.exists(push_swap_path) or not os.path.exists(checker_path):
-        print(f'Error: don\'t find {push_swap_path} or {checker_path}')
-        exit()
+    print("\n  Max INT")
+    cmd_error("1 2147483648 8 4 2 3")
+    cmd_error("1 6 8 2147483649 2 3")
+    cmd_error("1 6 -2147483649 4 2 3")
+    cmd_error("-2147483649 1 6 8 4 2 3")
 
-    if 'evaluating' in sys.argv:
-        print("Error management:")
+    print("\n  Nothing to return")
+    cmd_nothing_return("")
+    cmd_nothing_return("42")
+    cmd_nothing_return("30")
+    cmd_nothing_return("-5")
+    cmd_nothing_return("0 1 2 3")
+    cmd_nothing_return("-185 26 48 8546")
+    cmd_nothing_return("0 1 2 3 4 5 6 7 8 9 10 11")
+    cmd_nothing_return("-554949 -2549 -695 15 45948 545498")
+    cmd_nothing_return("548 9898")
+    cmd_nothing_return("1 2")
 
-        print("  Non numeric")
-        cmd_error("559 3 sdf9")
-        cmd_error("5hj 45 6 4")
-        cmd_error("5 45 6hj 4")
-        cmd_error("5 45 6 4 a")
-        cmd_error("5 45 48 s")
-        cmd_error("69 425 one 1")
-        cmd_error("5 4-5 6 58")
-        cmd_error("2 45 6 -")
-        cmd_error("2 - 6 3")
-        cmd_error("- 6 3")
-        cmd_error("1-2 6 3")
-        cmd_error("-158 6 3-5")
+    print("\n  Parsing")
+    cmd_error('""')
+    cmd_parsing('"0 5 8 9"')
+    cmd_parsing('"0 5 1 9 2"')
+    cmd_parsing('"5 6 8 9"')
+    cmd_parsing('"9 5 8 -1288"')
 
-        print("\n  Duplicate args")
-        cmd_error("2 6 3 6")
-        cmd_error("6 6 3")
-        cmd_error("3 6 3")
-        cmd_error("1 6 8 4 2 3 1")
+    cmd_parsing('"0 5 9" 8')
+    cmd_parsing('0 5 1 "9 2"')
+    cmd_parsing('"5" 6 8 9')
+    cmd_parsing('"9 5" 8 -1288')
 
-        print("\n  Max INT")
-        cmd_error("1 2147483648 8 4 2 3")
-        cmd_error("1 6 8 2147483649 2 3")
-        cmd_error("1 6 -2147483649 4 2 3")
-        cmd_error("-2147483649 1 6 8 4 2 3")
+    print("\nSimple version:")
 
-        print("\n  Nothing to return")
-        cmd_nothing_return("")
-        cmd_nothing_return("42")
-        cmd_nothing_return("30")
-        cmd_nothing_return("-5")
-        cmd_nothing_return("0 1 2 3")
-        cmd_nothing_return("-185 26 48 8546")
-        cmd_nothing_return("0 1 2 3 4 5 6 7 8 9 10 11")
-        cmd_nothing_return("-554949 -2549 -695 15 45948 545498")
-        cmd_nothing_return("548 9898")
-        cmd_nothing_return("1 2")
+    print("  3 args")
+    cmd_all_n(3, True)
+    print("\n  5 args")
+    cmd_all_n(5, True)
 
-        print("\n  Parsing")
-        cmd_error('""')
-        cmd_parsing('"0 5 8 9"')
-        cmd_parsing('"0 5 1 9 2"')
-        cmd_parsing('"5 6 8 9"')
-        cmd_parsing('"9 5 8 -1288"')
+    print("\nMiddle version:")
 
-        cmd_parsing('"0 5 9" 8')
-        cmd_parsing('0 5 1 "9 2"')
-        cmd_parsing('"5" 6 8 9')
-        cmd_parsing('"9 5" 8 -1288')
+    print("  100 random")
+    for _ in range(100):
+        cmd_middle(100)
 
-        print("\nSimple version:")
+    print("\n  500 random")
+    for _ in range(50):
+        cmd_middle(500)
+elif 'leaks' in sys.argv:
 
-        print("  3 args")
-        cmd_all_n(3, True)
-        print("\n  5 args")
-        cmd_all_n(5, True)
+    print("Leaks Error\n")
+    cmd_leaks("559 3 sdf9")
+    cmd_leaks("5hj 45 6 4")
+    cmd_leaks("5 45 6hj 4")
+    cmd_leaks("5 45 6 4 a")
+    cmd_leaks("5 45 48 s")
+    cmd_leaks("69 425 one 1")
+    cmd_leaks("5 4-5 6 58")
+    cmd_leaks("2 45 6 -")
+    cmd_leaks("2 - 6 3")
+    cmd_leaks("- 6 3")
+    cmd_leaks("2 6 3 6")
+    cmd_leaks("6 6 3")
+    cmd_leaks("3 6 3")
+    cmd_leaks("1 6 8 4 2 3 1")
+    cmd_leaks("1 2147483648 8 4 2 3")
+    cmd_leaks("1 6 8 2147483649 2 3")
+    cmd_leaks("1 6 -2147483649 4 2 3")
+    cmd_leaks("-2147483649 1 6 8 4 2 3")
+    cmd_leaks("")
+    cmd_leaks("42")
+    cmd_leaks("30")
+    cmd_leaks("-5")
+    cmd_leaks("0 1 2 3")
+    cmd_leaks("-185 26 48 8546")
+    cmd_leaks("0 1 2 3 4 5 6 7 8 9 10 11")
+    cmd_leaks("-554949 -2549 -695 15 45948 545498")
+    cmd_leaks("548 9898")
+    cmd_leaks("1 2")
+    cmd_leaks('""')
+    cmd_leaks('"0 5 8 9"')
+    cmd_leaks('"0 5 1 9 2"')
+    cmd_leaks('"5 6 8 9"')
+    cmd_leaks('"9 5 8 -1288"')
+    cmd_leaks('"0 5 9" 8')
+    cmd_leaks('0 5 1 "9 2"')
+    cmd_leaks('"5" 6 8 9')
+    cmd_leaks('"9 5" 8 -1288')
 
-        print("\nMiddle version:")
+    for k in (3, 5, 10, 50, 100, 500):
+        cmd_leaks(get_random_number(k))
 
-        print("  100 random")
-        for _ in range(100):
-            cmd_middle(100)
+elif 'all' in sys.argv:
+    all_ct = cmd_all_n(int(sys.argv[2]) if len(sys.argv) == 3 and sys.argv[2].isdigit() else 5)
+    print(f'mean = {int(sum(all_ct) / len(all_ct))} - max_len = {max(all_ct)}')
 
-        print("\n  500 random")
-        for _ in range(50):
-            cmd_middle(500)
-    elif 'leaks' in sys.argv:
-
-        print("Leaks Error\n")
-        cmd_leaks("559 3 sdf9")
-        cmd_leaks("5hj 45 6 4")
-        cmd_leaks("5 45 6hj 4")
-        cmd_leaks("5 45 6 4 a")
-        cmd_leaks("5 45 48 s")
-        cmd_leaks("69 425 one 1")
-        cmd_leaks("5 4-5 6 58")
-        cmd_leaks("2 45 6 -")
-        cmd_leaks("2 - 6 3")
-        cmd_leaks("- 6 3")
-        cmd_leaks("2 6 3 6")
-        cmd_leaks("6 6 3")
-        cmd_leaks("3 6 3")
-        cmd_leaks("1 6 8 4 2 3 1")
-        cmd_leaks("1 2147483648 8 4 2 3")
-        cmd_leaks("1 6 8 2147483649 2 3")
-        cmd_leaks("1 6 -2147483649 4 2 3")
-        cmd_leaks("-2147483649 1 6 8 4 2 3")
-        cmd_leaks("")
-        cmd_leaks("42")
-        cmd_leaks("30")
-        cmd_leaks("-5")
-        cmd_leaks("0 1 2 3")
-        cmd_leaks("-185 26 48 8546")
-        cmd_leaks("0 1 2 3 4 5 6 7 8 9 10 11")
-        cmd_leaks("-554949 -2549 -695 15 45948 545498")
-        cmd_leaks("548 9898")
-        cmd_leaks("1 2")
-        cmd_leaks('""')
-        cmd_leaks('"0 5 8 9"')
-        cmd_leaks('"0 5 1 9 2"')
-        cmd_leaks('"5 6 8 9"')
-        cmd_leaks('"9 5 8 -1288"')
-        cmd_leaks('"0 5 9" 8')
-        cmd_leaks('0 5 1 "9 2"')
-        cmd_leaks('"5" 6 8 9')
-        cmd_leaks('"9 5" 8 -1288')
-
-        for k in (3, 5, 10, 50, 100, 500):
-            cmd_leaks(get_random_number(k))
-
-    elif 'all' in sys.argv:
-        all_ct = cmd_all_n(int(sys.argv[2]) if len(sys.argv) == 3 and sys.argv[2].isdigit() else 5)
-        print(f'mean = {int(sum(all_ct) / len(all_ct))} - max_len = {max(all_ct)}')
-
+else:
+    length_args = int(sys.argv[1]) if len(sys.argv) >= 2 and sys.argv[1].isdigit() else 100
+    n_time = int(sys.argv[2]) if len(sys.argv) >= 3 and sys.argv[2].isdigit() else 1
+    if length_args in eval_pts:
+        for _ in range(n_time):
+            eval_pts[length_args]['max'] = -1
+            cmd_middle(length_args)
     else:
-        length_args = int(sys.argv[1]) if len(sys.argv) >= 2 and sys.argv[1].isdigit() else 100
-        n_time = int(sys.argv[2]) if len(sys.argv) >= 3 and sys.argv[2].isdigit() else 1
-        if length_args in eval_pts:
-            for _ in range(n_time):
-                eval_pts[length_args]['max'] = -1
-                cmd_middle(length_args)
-        else:
-            for _ in range(n_time):
-                args_check = get_random_number(length_args)
-                print(f'{cmd_check(args_check)} - len {len(args_check.split(" "))} in {cmd_count(args_check)} commands')
-                if '-a' in sys.argv:
-                    print(f'ARGS = {args_check}')
-
-Button(text='Testing', activebackground=c.bg, activeforeground=c.fg, bd=0).pack(fill=BOTH, expand=YES)
-
-eval_pts = {100: {'pts': {700: 5, 900: 4, 1100: 3, 1300: 2, 1500: 1}, 'max': -1}, 500: {'pts': {5500: 5, 7000: 4, 8500: 3, 10000: 2, 11500: 1}, 'max': -1}}
-
-wd.mainloop()
+        for _ in range(n_time):
+            args_check = get_random_number(length_args)
+            print(f'{cmd_check(args_check)} - len {len(args_check.split(" "))} in {cmd_count(args_check)} commands')
+            if '-a' in sys.argv:
+                print(f'ARGS = {args_check}')
