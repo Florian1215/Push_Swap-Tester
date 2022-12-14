@@ -3,17 +3,12 @@ import sys
 import random
 import subprocess
 
-# python3.9 push_swap.py
-#		'number' for specify length of args ('-a' to see test args)
-#		'evaluating' for check all
-#		'leaks' for test leaks
-#		'all' test all combinaison of digit
-
-
 int_min = -2147483648
 int_max = 2147483647
 makefile_cmd = f'make -C ../'
 checker_path = 'checker_Mac'
+if not os.path.exists(checker_path):
+    checker_path = 'push_Swap-tester/' + checker_path
 push_swap_path = f'{os.path.split(os.path.dirname(__file__))[0]}/push_swap'
 os.popen(makefile_cmd).read()
 eval_pts = {100: {'pts': {700: 5, 900: 4, 1100: 3, 1300: 2, 1500: 1}, 'max': -1}, 500: {'pts': {5500: 5, 7000: 4, 8500: 3, 10000: 2, 11500: 1}, 'max': -1}}
