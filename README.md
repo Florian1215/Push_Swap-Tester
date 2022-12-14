@@ -1,6 +1,6 @@
 # Push_Swap-Tester
 
-Push Swap tester
+Tester for push_swap 42 project !
 
 ## How to use
 
