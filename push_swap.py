@@ -5,7 +5,7 @@ import subprocess
 
 int_min = -2147483648
 int_max = 2147483647
-makefile_cmd = f'make -C ../'
+makefile_cmd = 'make'
 checker_path = 'checker_Mac'
 if not os.path.exists(checker_path):
     checker_path = 'push_Swap-tester/' + checker_path
