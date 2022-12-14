@@ -11,21 +11,21 @@ git clone git@github.com:Florian1215/Push_Swap-Tester.git
 
 Evaluating test
 ```sh
-python3  push_Swap-tester evaluating
+python3  push_Swap-tester/push_swap.py evaluating
 ```
 
 Leaks test
 ```sh
-python3  push_Swap-tester leaks
+python3  push_Swap-tester/push_swap.py leaks
 ```
 
 Test with x args
 ```sh
-python3  push_Swap-tester 500
+python3  push_Swap-tester/push_swap.py 500
 ```
 `-a` for print args testing
 
 Test all combinaison of x args
 ```sh
-python3  push_Swap-tester all 5
+python3  push_Swap-tester/push_swap.py all 5
 ```
