@@ -336,7 +336,7 @@ else:
                 else:
                     print_color(f' sort in {ct}', C.GREY)
                 all_ct.append(ct)
-    if n_time > 1:
+    if n_time > 1 and all_ct:
         print_color(f'\nmean = {int(sum(all_ct) / len(all_ct))}{f" ({get_pts(length_args, int(sum(all_ct) / len(all_ct)))} pts)" if length_args in eval_pts else ""}\n', C.YELLOW)
         if 0 in all_ct:
             all_ct.remove(0)
