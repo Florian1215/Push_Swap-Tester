@@ -8,7 +8,7 @@ int_min = -2147483648
 int_max = 2147483647
 
 dir_name = 'push_Swap-tester/'
-checker_path = './checker_Mac'
+checker_path = f'./{dir_name}checker_Mac'
 abs_path = os.path.split(os.path.dirname(__file__))[0]
 push_swap_path = f'{abs_path}/push_swap'
 checker_bonus_path = f'{abs_path}/checker'
@@ -94,7 +94,6 @@ def cmd(args, stderror=False):
             return ''
         return proc[1].decode()
     return proc[0].decode()
-    # return subprocess.Popen(f'{push_swap_path} {args}', stderr=subprocess.PIPE).stderr.read().decode() if stderror else os.popen(f'{push_swap_path} {args}').read()
 
 
 def cmd_check(args):
@@ -274,8 +273,8 @@ elif 'leaks' in sys.argv:
     cmd_leaks("6 6 3")
     cmd_leaks("3 6 3")
     cmd_leaks("1 6 8 4 2 3 1")
-    cmd_error("-4 2 6 7 9 11 11 15 86 1848")
-    cmd_error("-4 2 6 7 9 11 15 86 1848 1848")
+    cmd_leaks("-4 2 6 7 9 11 11 15 86 1848")
+    cmd_leaks("-4 2 6 7 9 11 15 86 1848 1848")
     cmd_leaks("1 2147483648 8 4 2 3")
     cmd_leaks("1 6 8 2147483649 2 3")
     cmd_leaks("1 6 -2147483649 4 2 3")
@@ -322,10 +321,8 @@ else:
         check = cmd_check(args_check)
         if check == 'Error':
             error('checker_Mac return Error')
-            exit(1)
         else:
             if check == "KO":
-                ct = 666
                 print_color("\tKO", C.RED, False)
                 if '-a' in sys.argv:
                     print_color(f' {"" if ct >= 10 else " "}{ct}  -  {args_check}', C.GREY)
@@ -338,13 +335,12 @@ else:
                     print_color(f' {"" if ct >= 10 else " "}{ct}  -  {args_check}', C.GREY)
                 else:
                     print_color(f' sort in {ct}', C.GREY)
-
-        all_ct.append(ct)
+                all_ct.append(ct)
     if n_time > 1:
         print_color(f'\nmean = {int(sum(all_ct) / len(all_ct))}{f" ({get_pts(length_args, int(sum(all_ct) / len(all_ct)))} pts)" if length_args in eval_pts else ""}\n', C.YELLOW)
         if 0 in all_ct:
             all_ct.remove(0)
         print_color(f'min = {min(all_ct)}{f" ({get_pts(length_args, min(all_ct))} pts)" if length_args in eval_pts else ""}', C.BLUE)
         print_color(f'max = {max(all_ct)}{f" ({get_pts(length_args, min(all_ct))} pts)" if length_args in eval_pts else ""}', C.CYAN)
-    elif length_args in eval_pts:
+    elif length_args in eval_pts and all_ct:
         print_color(f'\t\t{get_pts(length_args, min(all_ct))} pts', C.BLUE)
