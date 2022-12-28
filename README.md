@@ -8,7 +8,7 @@ Tester for push_swap 42 project !
 ```sh
 git clone https://github.com/Florian1215/Push_Swap-Tester.git
 ```
-<br/><br/>
+
 ***
 Evaluating test
 ```sh
