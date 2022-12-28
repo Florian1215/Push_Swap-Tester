@@ -258,7 +258,7 @@ if 'evaluating' in sys.argv:
         cmd_middle(500)
 elif 'leaks' in sys.argv:
 
-    print_color("Leaks Error\n", C.BLUE)
+    print_color("→ Leaks Error\n", C.BLUE)
     cmd_leaks("559 3 sdf9")
     cmd_leaks("5hj 45 6 4")
     cmd_leaks("5 45 6hj 4")
