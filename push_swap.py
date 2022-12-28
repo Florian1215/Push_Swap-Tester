@@ -4,13 +4,13 @@ import random
 import subprocess
 import math
 
-int_min = -2147483648
-int_max = 2147483647
+int_min = -500
+int_max = 500
 
 dir_name = 'push_Swap-tester/'
 checker_path = f'./{dir_name}checker_Mac'
 abs_path = os.path.split(os.path.dirname(__file__))[0]
-push_swap_path = f'{abs_path}/push_swap'
+push_swap_path = f'{abs_path}/push_swap.exe'
 checker_bonus_path = f'{abs_path}/checker'
 
 make_file_cmd = 'make'
@@ -22,8 +22,8 @@ eval_pts = {100: {'pts': {700: 5, 900: 4, 1100: 3, 1300: 2, 1500: 1}, 'max': -1}
 
 
 # General --------------------------------------------------------
-def get_random_number(k):
-    return ' '.join([str(nb) for nb in random.sample(range(0, k), k=k)])
+def get_random_number(k, all_range=False):
+    return ' '.join([str(nb) for nb in random.sample(range(int_min, int_max) if all_range else range(0, k), k=k)])
 
 
 def get_pts(n, ct):
@@ -57,16 +57,15 @@ def error(string_):
 def cmd_error(args):
     res = cmd(args, True)
     if res != "Error\n":
-        print()
         error(f"With '{args}' we must have \"Error\", we have '{res}'")
     else:
         print_color("\tOK", C.GREEN, False)
 
 
 def cmd_nothing_return(args):
-    if cmd(args):
-        print()
-        error(f"Your program should return nothing, he return '{args}'")
+    c = cmd(args).removesuffix('\n')
+    if c:
+        error(f"Your program should return nothing with '{args}', he return '{c}'")
     else:
         print_color("\tOK", C.GREEN, False)
 
@@ -90,7 +89,7 @@ def cmd(args, stderror=False):
     proc = subprocess.Popen([push_swap_path, args], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
     if stderror:
         if not proc[1]:
-            error('error message must be on stdout')
+            error('error message must be on stderr')
             return ''
         return proc[1].decode()
     return proc[0].decode()
@@ -305,6 +304,8 @@ elif 'leaks' in sys.argv:
     print_color("\tOK", C.GREEN, False)
     print_color('you have no leaks !\n', C.GREY)
 
+elif 'random' in sys.argv:
+    print(get_random_number(int(sys.argv[2]) if len(sys.argv) >= 3 else 100, True))
 else:
     length_args = int(sys.argv[1]) if len(sys.argv) >= 2 and sys.argv[1].isdigit() else 100
     n_time = int(sys.argv[2]) if len(sys.argv) >= 3 and sys.argv[2].isdigit() else 1
