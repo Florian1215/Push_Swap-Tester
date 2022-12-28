@@ -8,7 +8,7 @@ Tester for push_swap 42 project !
 ```sh
 git clone https://github.com/Florian1215/Push_Swap-Tester.git
 ```
-<br/><br/>
+
 ***
 Evaluating test
 ```sh
@@ -19,7 +19,7 @@ Leaks test
 ```sh
 python3 push_Swap-tester/push_swap.py leaks
 ```
-*If they are a leaks, the program stop. *
+***If they are a leaks, the program stop.***
 <br /><br />
 ***
 Test with x args
