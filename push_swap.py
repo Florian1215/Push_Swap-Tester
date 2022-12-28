@@ -4,22 +4,22 @@ import random
 import subprocess
 import math
 
-
 int_min = -2147483648
 int_max = 2147483647
+
 dir_name = 'push_Swap-tester/'
-checker_path = 'checker_Mac'
+checker_path = './checker_Mac'
 abs_path = os.path.split(os.path.dirname(__file__))[0]
-if not os.path.exists(checker_path):
-    checker_path = dir_name + checker_path
 push_swap_path = f'{abs_path}/push_swap'
-if not os.path.exists(push_swap_path):
-    push_swap_path = f'{abs_path}/{dir_name}push_swap'
 checker_bonus_path = f'{abs_path}/checker'
-if not os.path.exists(checker_bonus_path):
-    checker_bonus_path = f'{abs_path}/{dir_name}checker'
+
+make_file_cmd = 'make'
+if os.path.exists('../Makefile'):
+    make_file_cmd = 'make -C ../'
+os.popen(make_file_cmd).read()
+
 eval_pts = {100: {'pts': {700: 5, 900: 4, 1100: 3, 1300: 2, 1500: 1}, 'max': -1}, 500: {'pts': {5500: 5, 7000: 4, 8500: 3, 10000: 2, 11500: 1}, 'max': -1}}
-cmds = ['sa', 'sb', 'ss', 'pa', 'pb', 'ra', 'rb', 'rr', 'rra', 'rrb', 'rrr']
+
 
 # General --------------------------------------------------------
 def get_random_number(k):
@@ -87,13 +87,21 @@ def cmd_leaks(args):
 
 # CMD ------------------------------------------------------------
 def cmd(args, stderror=False):
-    return subprocess.Popen([push_swap_path, args], stderr=subprocess.PIPE).stderr.read().decode() if stderror else os.popen(f'{push_swap_path} {args}').read()
+    proc = subprocess.Popen([push_swap_path, args], stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
+    if stderror:
+        if not proc[1]:
+            error('error message must be on stdout')
+            return ''
+        return proc[1].decode()
+    return proc[0].decode()
+    # return subprocess.Popen(f'{push_swap_path} {args}', stderr=subprocess.PIPE).stderr.read().decode() if stderror else os.popen(f'{push_swap_path} {args}').read()
 
 
 def cmd_check(args):
-    if '-i' in sys.argv:
-        return os.popen(f'{push_swap_path} {args} | grep -e {" -e ".join(cmds)} | ./{checker_path} {args}').read().removesuffix('\n')
-    return os.popen(f'{push_swap_path} {args} | ./{checker_path} {args}').read().removesuffix('\n')
+    proc = subprocess.Popen(f'{push_swap_path} {args} | {checker_path} {args}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
+    if proc[1]:
+        return proc[1].decode().removesuffix('\n')
+    return proc[0].decode().removesuffix('\n')
 
 
 def cmd_count(args):
@@ -115,22 +123,36 @@ def cmd_all_n(n):
             rec(tab, index + 1)
 
     rec(res)
+    nl = False
 
     for comb in all_comb:
         check = cmd_check(comb)
         if check == "KO":
+            if nl:
+                print()
             error(f"\tKO don't sort '{comb}'")
+            nl = False
         elif check == 'Error':
+            if nl:
+                print()
             error('checker_Mac return Error')
+            nl = False
         else:
             ct = len(cmd(comb).split('\n')) - 1
             all_count.append(ct)
             if n == 5 and ct > 12:
+                if nl:
+                    print()
                 error(f"\tKO you sort in more than 12 instructions '{comb}'")
+                nl = False
             elif n == 3 and ct > 3:
+                if nl:
+                    print()
                 error(f"\tKO you sort in more than 3 instructions '{comb}'")
+                nl = False
             elif n == 3 or all_comb.index(comb) % 20 == 0:
                 print_color("\tOK", C.GREEN, False)
+                nl = True
     return all_count
 
 
@@ -300,7 +322,7 @@ else:
         check = cmd_check(args_check)
         if check == 'Error':
             error('checker_Mac return Error')
-            ct = 666
+            exit(1)
         else:
             if check == "KO":
                 ct = 666
