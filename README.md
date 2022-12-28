@@ -19,7 +19,7 @@ Leaks test
 ```sh
 python3 push_Swap-tester/push_swap.py leaks
 ```
-*If they are a leaks, the program stop. *
+***If they are a leaks, the program stop.***
 <br /><br />
 ***
 Test with x args
