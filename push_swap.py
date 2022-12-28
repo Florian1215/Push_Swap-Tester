@@ -2,63 +2,97 @@ import os
 import sys
 import random
 import subprocess
+import math
+
 
 int_min = -2147483648
 int_max = 2147483647
-makefile_cmd = 'make'
+dir_name = 'push_Swap-tester/'
 checker_path = 'checker_Mac'
+abs_path = os.path.split(os.path.dirname(__file__))[0]
 if not os.path.exists(checker_path):
-    checker_path = 'push_Swap-tester/' + checker_path
-push_swap_path = f'{os.path.split(os.path.dirname(__file__))[0]}/push_swap'
-os.popen(makefile_cmd).read()
+    checker_path = dir_name + checker_path
+push_swap_path = f'{abs_path}/push_swap'
+if not os.path.exists(push_swap_path):
+    push_swap_path = f'{abs_path}/{dir_name}push_swap'
+checker_bonus_path = f'{abs_path}/checker'
+if not os.path.exists(checker_bonus_path):
+    checker_bonus_path = f'{abs_path}/{dir_name}checker'
 eval_pts = {100: {'pts': {700: 5, 900: 4, 1100: 3, 1300: 2, 1500: 1}, 'max': -1}, 500: {'pts': {5500: 5, 7000: 4, 8500: 3, 10000: 2, 11500: 1}, 'max': -1}}
-
+cmds = ['sa', 'sb', 'ss', 'pa', 'pb', 'ra', 'rb', 'rr', 'rra', 'rrb', 'rrr']
 
 # General --------------------------------------------------------
 def get_random_number(k):
-    return ' '.join([str(nb) for nb in random.sample(range(int_min, int_max), k=k)])
+    return ' '.join([str(nb) for nb in random.sample(range(0, k), k=k)])
 
 
-# ERROR ----------------------------------------------------------
+def get_pts(n, ct):
+    for max_ins in eval_pts[n]['pts']:
+        if ct < max_ins:
+            return eval_pts[n]['pts'][max_ins]
+    return 0
+
+
+# Color ----------------------------------------------------------
+def print_color(str, col, nl=True):
+    print(f"\033[{col}m {str}\033[00m", end='\n' if nl else '')
+
+
+class C:
+    GREY = 90
+    RED = 91
+    GREEN = 92
+    YELLOW = 93
+    BLUE = 94
+    PINK = 95
+    CYAN = 96
+
+
+# Error ----------------------------------------------------------
 def error(string_):
-    print('Error: ' + string_)
+    print_color('Error: ', C.RED, nl=False)
+    print_color(string_, C.GREY)
 
 
 def cmd_error(args):
     res = cmd(args, True)
     if res != "Error\n":
+        print()
         error(f"With '{args}' we must have \"Error\", we have '{res}'")
     else:
-        print("\tOK")
+        print_color("\tOK", C.GREEN, False)
 
 
 def cmd_nothing_return(args):
     if cmd(args):
+        print()
         error(f"Your program should return nothing, he return '{args}'")
     else:
-        print("\tOK")
+        print_color("\tOK", C.GREEN, False)
 
 
 def cmd_parsing(args):
     if cmd(args) == "Error\n":
+        print()
         error(f"Parsing error with '{args}'")
     else:
-        print("\tOK")
+        print_color("\tOK", C.GREEN, False)
 
 
 def cmd_leaks(args):
     if os.system(f'leaks -atExit -- {push_swap_path} {args}') > 0:
-        print(f'Leaks Error ! With \'{args}\'')
+        error(f'You have Leaks ! with \'{args}\'')
         exit()
 
 
 # CMD ------------------------------------------------------------
 def cmd(args, stderror=False):
-    proc = subprocess.Popen([push_swap_path, args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    return proc.stderr.read().decode() if stderror else proc.stdout.read().decode()
+    return subprocess.Popen([push_swap_path, args], stderr=subprocess.PIPE).stderr.read().decode() if stderror else os.popen(f'{push_swap_path} {args}').read()
 
 
 def cmd_check(args):
+    if '-i' in sys.argv:
+        return os.popen(f'{push_swap_path} {args} | grep -e {" -e ".join(cmds)} | ./{checker_path} {args}').read().removesuffix('\n')
     return os.popen(f'{push_swap_path} {args} | ./{checker_path} {args}').read().removesuffix('\n')
 
 
@@ -66,7 +100,7 @@ def cmd_count(args):
     return len(cmd(args).split('\n')) - 1
 
 
-def cmd_all_n(n, evaluating=False):
+def cmd_all_n(n):
     all_comb = []
     all_count = []
     res = [-1] * n
@@ -86,33 +120,34 @@ def cmd_all_n(n, evaluating=False):
         check = cmd_check(comb)
         if check == "KO":
             error(f"\tKO don't sort '{comb}'")
-        ct = len(cmd(comb).split('\n')) - 1
-        all_count.append(ct)
-        if n == 5 and ct > 12:
-            error(f"\tKO you sort in more than 12 instructions '{comb}'")
-        elif n == 3 and ct > 3:
-            error(f"\tKO you sort in more than 3 instructions '{comb}'")
-        elif not evaluating or n == 3 or all_comb.index(comb) % 20 == 0:
-            print("\tOK" + (f' - {"" if ct >= 10 else " "}{ct}  |  {comb}', '')[evaluating])
+        elif check == 'Error':
+            error('checker_Mac return Error')
+        else:
+            ct = len(cmd(comb).split('\n')) - 1
+            all_count.append(ct)
+            if n == 5 and ct > 12:
+                error(f"\tKO you sort in more than 12 instructions '{comb}'")
+            elif n == 3 and ct > 3:
+                error(f"\tKO you sort in more than 3 instructions '{comb}'")
+            elif n == 3 or all_comb.index(comb) % 20 == 0:
+                print_color("\tOK", C.GREEN, False)
     return all_count
 
 
 def cmd_middle(n):
     args = get_random_number(n)
     check = cmd_check(args)
-    if check == "KO":
+    if check == 'KO':
         error(f"\tKO: don't sort '{args}'")
+    elif check == 'Error':
+        error('checker_Mac return Error')
     else:
         ct = cmd_count(args)
-        pt = 0
-        for max_ins in eval_pts[n]['pts']:
-            if ct < max_ins:
-                pt = eval_pts[n]['pts'][max_ins]
-
-                break
+        pt = get_pts(n, ct)
         if eval_pts[n]['max'] < pt:
             eval_pts[n]['max'] = pt
-            print(f"\tOK sort in {ct} - {pt} pts")
+            print_color('\tOK', C.GREEN, False)
+            print_color(f'sort in {ct} - {pt} pts', C.GREY)
             if '-a' in sys.argv:
                 print(f'ARGS = {args}')
 
@@ -120,13 +155,13 @@ def cmd_middle(n):
 # CODE ---------------------------------------------------------------
 
 if not os.path.exists(push_swap_path) or not os.path.exists(checker_path):
-    print(f'Error: don\'t find {push_swap_path} or {checker_path}')
+    error(f'don\'t find {push_swap_path} or {checker_path}')
     exit()
 
 if 'evaluating' in sys.argv:
-    print("Error management:")
+    print_color("\n→ Error management:", C.BLUE)
 
-    print("  Non numeric")
+    print_color("  Non numeric", C.PINK)
     cmd_error("559 3 sdf9")
     cmd_error("5hj 45 6 4")
     cmd_error("5 45 6hj 4")
@@ -140,19 +175,24 @@ if 'evaluating' in sys.argv:
     cmd_error("1-2 6 3")
     cmd_error("-158 6 3-5")
 
-    print("\n  Duplicate args")
+    print()
+    print_color("  Duplicate args", C.PINK)
     cmd_error("2 6 3 6")
     cmd_error("6 6 3")
     cmd_error("3 6 3")
     cmd_error("1 6 8 4 2 3 1")
+    cmd_error("-4 2 6 7 9 11 11 15 86 1848")
+    cmd_error("-4 2 6 7 9 11 15 86 1848 1848")
 
-    print("\n  Max INT")
+    print()
+    print_color("  Max INT", C.PINK)
     cmd_error("1 2147483648 8 4 2 3")
     cmd_error("1 6 8 2147483649 2 3")
     cmd_error("1 6 -2147483649 4 2 3")
     cmd_error("-2147483649 1 6 8 4 2 3")
 
-    print("\n  Nothing to return")
+    print()
+    print_color("  Nothing to return", C.PINK)
     cmd_nothing_return("")
     cmd_nothing_return("42")
     cmd_nothing_return("30")
@@ -164,7 +204,8 @@ if 'evaluating' in sys.argv:
     cmd_nothing_return("548 9898")
     cmd_nothing_return("1 2")
 
-    print("\n  Parsing")
+    print()
+    print_color("  Parsing", C.PINK)
     cmd_error('""')
     cmd_parsing('"0 5 8 9"')
     cmd_parsing('"0 5 1 9 2"')
@@ -176,25 +217,27 @@ if 'evaluating' in sys.argv:
     cmd_parsing('"5" 6 8 9')
     cmd_parsing('"9 5" 8 -1288')
 
-    print("\nSimple version:")
+    print_color("\n\n→ Simple version:", C.BLUE)
 
-    print("  3 args")
-    cmd_all_n(3, True)
-    print("\n  5 args")
-    cmd_all_n(5, True)
+    print_color("  3 args", C.PINK)
+    cmd_all_n(3)
+    print()
+    print_color("  5 args", C.PINK)
+    cmd_all_n(5)
 
-    print("\nMiddle version:")
+    print_color("\n\n→ Middle version:", C.BLUE)
 
-    print("  100 random")
+    print_color("  100 random", C.PINK)
     for _ in range(100):
         cmd_middle(100)
 
-    print("\n  500 random")
+    print()
+    print_color("  500 random", C.PINK)
     for _ in range(50):
         cmd_middle(500)
 elif 'leaks' in sys.argv:
 
-    print("Leaks Error\n")
+    print_color("Leaks Error\n", C.BLUE)
     cmd_leaks("559 3 sdf9")
     cmd_leaks("5hj 45 6 4")
     cmd_leaks("5 45 6hj 4")
@@ -209,6 +252,8 @@ elif 'leaks' in sys.argv:
     cmd_leaks("6 6 3")
     cmd_leaks("3 6 3")
     cmd_leaks("1 6 8 4 2 3 1")
+    cmd_error("-4 2 6 7 9 11 11 15 86 1848")
+    cmd_error("-4 2 6 7 9 11 15 86 1848 1848")
     cmd_leaks("1 2147483648 8 4 2 3")
     cmd_leaks("1 6 8 2147483649 2 3")
     cmd_leaks("1 6 -2147483649 4 2 3")
@@ -236,20 +281,48 @@ elif 'leaks' in sys.argv:
     for k in (3, 5, 10, 50, 100, 500):
         cmd_leaks(get_random_number(k))
 
-elif 'all' in sys.argv:
-    all_ct = cmd_all_n(int(sys.argv[2]) if len(sys.argv) == 3 and sys.argv[2].isdigit() else 5)
-    print(f'mean = {int(sum(all_ct) / len(all_ct))} - max_len = {max(all_ct)}')
+    print_color("\tOK", C.GREEN, False)
+    print_color('you have no leaks !\n', C.GREY)
 
 else:
     length_args = int(sys.argv[1]) if len(sys.argv) >= 2 and sys.argv[1].isdigit() else 100
     n_time = int(sys.argv[2]) if len(sys.argv) >= 3 and sys.argv[2].isdigit() else 1
-    if length_args in eval_pts:
-        for _ in range(n_time):
-            eval_pts[length_args]['max'] = -1
-            cmd_middle(length_args)
-    else:
-        for _ in range(n_time):
+    if 'all' in sys.argv and length_args < 8:
+        n_time = math.factorial(length_args)
+    all_args = []
+    all_ct = []
+    for _ in range(n_time):
+        while True:
             args_check = get_random_number(length_args)
-            print(f'{cmd_check(args_check)} - len {len(args_check.split(" "))} in {cmd_count(args_check)} commands')
-            if '-a' in sys.argv:
-                print(f'ARGS = {args_check}')
+            if args_check not in all_args:
+                all_args.append(args_check)
+                break
+        check = cmd_check(args_check)
+        if check == 'Error':
+            error('checker_Mac return Error')
+            ct = 666
+        else:
+            if check == "KO":
+                ct = 666
+                print_color("\tKO", C.RED, False)
+                if '-a' in sys.argv:
+                    print_color(f' {"" if ct >= 10 else " "}{ct}  -  {args_check}', C.GREY)
+                else:
+                    print()
+            else:
+                ct = cmd_count(args_check)
+                print_color("\tOK", C.GREEN, False)
+                if '-a' in sys.argv:
+                    print_color(f' {"" if ct >= 10 else " "}{ct}  -  {args_check}', C.GREY)
+                else:
+                    print_color(f' sort in {ct}', C.GREY)
+
+        all_ct.append(ct)
+    if n_time > 1:
+        print_color(f'\nmean = {int(sum(all_ct) / len(all_ct))}{f" ({get_pts(length_args, int(sum(all_ct) / len(all_ct)))} pts)" if length_args in eval_pts else ""}\n', C.YELLOW)
+        if 0 in all_ct:
+            all_ct.remove(0)
+        print_color(f'min = {min(all_ct)}{f" ({get_pts(length_args, min(all_ct))} pts)" if length_args in eval_pts else ""}', C.BLUE)
+        print_color(f'max = {max(all_ct)}{f" ({get_pts(length_args, min(all_ct))} pts)" if length_args in eval_pts else ""}', C.CYAN)
+    elif length_args in eval_pts:
+        print_color(f'\t\t{get_pts(length_args, min(all_ct))} pts', C.BLUE)
