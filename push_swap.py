@@ -10,7 +10,7 @@ int_max = 500
 dir_name = 'push_Swap-tester/'
 checker_path = f'./{dir_name}checker_Mac'
 abs_path = os.path.split(os.path.dirname(__file__))[0]
-push_swap_path = f'{abs_path}/push_swap.exe'
+push_swap_path = f'{abs_path}/push_swap'
 checker_bonus_path = f'{abs_path}/checker'
 
 make_file_cmd = 'make'
