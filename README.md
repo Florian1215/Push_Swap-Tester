@@ -36,6 +36,11 @@ python3 push_Swap-tester/push_swap.py 500
 python3 push_Swap-tester/push_swap.py 500 200
 ```
 
+### Test all the combinaison of ***x*** args
+```sh
+python3 push_Swap-tester/push_swap.py 5 all
+```
+
 ```-a``` for print args testing
 
 <br /><br />
