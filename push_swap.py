@@ -72,38 +72,38 @@ def ko(string_):
     print_color(string_, C.GREY)
 
 
-def cmd_error(args):
-    res = cmd(args, True)
+def cmd_error(args_):
+    res = cmd(args_, True)
     if res != "Error\n":
-        error(f"With '{args}' we must have \"Error\", we have '{res}'")
+        error(f"With '{args_}' we must have \"Error\", we have '{res}'")
     else:
         print_color("\tOK", C.GREEN, False)
 
 
-def cmd_nothing_return(args):
-    c = cmd(args).removesuffix('\n')
+def cmd_nothing_return(args_):
+    c = cmd(args_).removesuffix('\n')
     if c:
-        error(f"Your program should return nothing with '{args}', he return '{c}'")
+        error(f"Your program should return nothing with '{args_}', he return '{c}'")
     else:
         print_color("\tOK", C.GREEN, False)
 
 
-def cmd_parsing(args):
-    if cmd(args) == "Error\n":
-        error(f"Parsing error with '{args}'")
+def cmd_parsing(args_):
+    if cmd(args_) == "Error\n":
+        error(f"Parsing error with '{args_}'")
     else:
         print_color("\tOK", C.GREEN, False)
 
 
-def cmd_leaks(args):
-    if os.system(f'leaks -atExit -- {push_swap_path} {args}') > 0:
-        error(f'You have Leaks ! with \'{args}\'')
+def cmd_leaks(args_):
+    if os.system(f'leaks -atExit -- {push_swap_path} {args_}') > 0:
+        error(f'You have Leaks ! with \'{args_}\'')
         exit()
 
 
 # CMD ------------------------------------------------------------
-def cmd(args, stderror=False):
-    proc = subprocess.Popen(f'{push_swap_path} {args}', shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
+def cmd(args_, stderror=False):
+    proc = subprocess.Popen(f'{push_swap_path} {args_}', shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
     if stderror:
         if not proc[1]:
             error('error message must be on stderr')
@@ -112,15 +112,15 @@ def cmd(args, stderror=False):
     return proc[0].decode()
 
 
-def cmd_check(args):
-    proc = subprocess.Popen(f'{push_swap_path} {args} | {checker_path} {args}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
+def cmd_check(args_):
+    proc = subprocess.Popen(f'{push_swap_path} {args_} | {checker_path} {args_}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
     if proc[1]:
         return proc[1].decode().removesuffix('\n')
     return proc[0].decode().removesuffix('\n')
 
 
-def cmd_count(args):
-    return len(cmd(args).split('\n')) - 1
+def cmd_count(args_):
+    return len(cmd(args_).split('\n')) - 1
 
 
 def cmd_all_n(n):
@@ -131,7 +131,7 @@ def cmd_all_n(n):
     def rec(tab, index=0):
         if index >= n:
             if len(set(tab)) == n:
-                all_comb.append(' '.join(str(k) for k in tab))
+                all_comb.append(' '.join(str(k_) for k_ in tab))
             return
         for i in range(n):
             tab[index] = i

@@ -40,14 +40,11 @@ python3 push_Swap-tester/push_swap.py 500 200
 ```sh
 python3 push_Swap-tester/push_swap.py 5 all
 ```
-<<<<<<< HEAD
-=======
 
 ```-a``` for print args testing
->>>>>>> 2cae2c4b7b3d9896d5bbdaccc57640521a4284a7
 
-```-a``` for print args testing
 <br /><br />
+
 ***
 ### Generate random numbers
 ```sh
