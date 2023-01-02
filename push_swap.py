@@ -166,7 +166,7 @@ if not os.path.exists(push_swap_path) or not os.path.exists(checker_path):
 if 'evaluating' in sys.argv:
     print_color("\n→ Error management:", C.BLUE, False)
 
-    print_color("  Non numeric", C.PINK)
+    print_color("\n  Non numeric", C.PINK)
     cmd_error("559 3 sdf9")
     cmd_error("5hj 45 6 4")
     cmd_error("5 45 6hj 4")
