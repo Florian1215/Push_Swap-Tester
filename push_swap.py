@@ -89,7 +89,7 @@ def cmd_nothing_return(args_):
 
 
 def cmd_parsing(args_):
-    if cmd(args_) == "Error\n":
+    if cmd(args_, True, False) == "Error\n":
         error(f"Parsing error with '{args_}'")
     else:
         print_color("\tOK", C.GREEN, False)
@@ -102,10 +102,10 @@ def cmd_leaks(args_):
 
 
 # CMD ------------------------------------------------------------
-def cmd(args_, stderror=False):
+def cmd(args_, stderror=False, sterr_msg=True):
     proc = subprocess.Popen(f'{push_swap_path} {args_}', shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
     if stderror:
-        if not proc[1]:
+        if not proc[1] and sterr_msg:
             error('error message must be on stderr')
             return ''
         return proc[1].decode()
@@ -152,7 +152,7 @@ def cmd_all_n(n):
                 ko(f"you sort in more than 12 instructions '{comb}'")
             elif n == 3 and ct_ > 3:
                 ko(f"you sort in more than 3 instructions '{comb}'")
-            elif n == 3 or all_comb.index(comb) % 10 == 0:
+            elif n == 3 or all_comb.index(comb) % 15 == 0:
                 print_color("\tOK", C.GREEN, False)
     return all_count
 
@@ -207,16 +207,20 @@ if 'evaluating' in sys.argv:
     cmd_nothing_return("1 2")
 
     print_color("\n  Parsing", C.PINK)
-    cmd_error('""')
     cmd_parsing('"0 5 8 9"')
     cmd_parsing('"0 5 1 9 2"')
     cmd_parsing('"5 6 8 9"')
     cmd_parsing('"9 5 8 -1288"')
-
-    cmd_parsing('"0 5 9" 8')
-    cmd_parsing('0 5 1 "9 2"')
-    cmd_parsing('"5" 6 8 9')
-    cmd_parsing('"9 5" 8 -1288')
+    if '-s' in sys.argv:
+        cmd_error('""')
+        cmd_error('0 5 8 9 ""')
+        cmd_error('0 "" 95 -11')
+        cmd_error('"" 8 -1288')
+        cmd_error('8 -12 ""')
+        cmd_parsing('"0 5 9" 8')
+        cmd_parsing('0 5 1 "9 2"')
+        cmd_parsing('"5" 6 8 9')
+        cmd_parsing('"9 5" 8 -1288')
 
     print_color("\n\n→ Simple version:", C.BLUE, False)
 
@@ -281,15 +285,19 @@ elif 'leaks' in sys.argv:
     cmd_leaks("-554949 -2549 -695 15 45948 545498")
     cmd_leaks("548 9898")
     cmd_leaks("1 2")
-    cmd_leaks('""')
     cmd_leaks('"0 5 8 9"')
     cmd_leaks('"0 5 1 9 2"')
     cmd_leaks('"5 6 8 9"')
     cmd_leaks('"9 5 8 -1288"')
-    cmd_leaks('"0 5 9" 8')
-    cmd_leaks('0 5 1 "9 2"')
-    cmd_leaks('"5" 6 8 9')
-    cmd_leaks('"9 5" 8 -1288')
+    if '-s' in sys.argv:
+        cmd_leaks('""')
+        cmd_leaks('"0 5 9" 8')
+        cmd_leaks('0 5 1 "9 2"')
+        cmd_leaks('"5" 6 8 9')
+        cmd_leaks('"9 5" 8 -1288')
+        cmd_leaks('"" 8 -1288')
+        cmd_leaks('8 -12 ""')
+        cmd_leaks('-2 "" 4 ""')
 
     for k in (3, 5, 10, 50, 100, 500):
         for _ in range(10):
