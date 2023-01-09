@@ -207,12 +207,12 @@ if 'evaluating' in sys.argv:
     cmd_nothing_return("1 2")
 
     print_color("\n  Parsing", C.PINK)
+    cmd_error('""')
     cmd_parsing('"0 5 8 9"')
     cmd_parsing('"0 5 1 9 2"')
     cmd_parsing('"5 6 8 9"')
     cmd_parsing('"9 5 8 -1288"')
-    if '-s' in sys.argv:
-        cmd_error('""')
+    if '-s' in sys.argv or '--strict' in sys.argv:
         cmd_error('0 5 8 9 ""')
         cmd_error('0 "" 95 -11')
         cmd_error('"" 8 -1288')
@@ -289,8 +289,8 @@ elif 'leaks' in sys.argv:
     cmd_leaks('"0 5 1 9 2"')
     cmd_leaks('"5 6 8 9"')
     cmd_leaks('"9 5 8 -1288"')
-    if '-s' in sys.argv:
-        cmd_leaks('""')
+    cmd_leaks('""')
+    if '-s' in sys.argv or '--strict' in sys.argv:
         cmd_leaks('"0 5 9" 8')
         cmd_leaks('0 5 1 "9 2"')
         cmd_leaks('"5" 6 8 9')
