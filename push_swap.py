@@ -180,6 +180,8 @@ if 'evaluating' in sys.argv:
     cmd_error("1-2 6 3")
     cmd_error("-158 6 3-5")
 
+    cmd_error('""')
+
     print_color("\n  Duplicate args", C.PINK)
     cmd_error("2 6 3 6")
     cmd_error("6 6 3")
@@ -207,7 +209,6 @@ if 'evaluating' in sys.argv:
     cmd_nothing_return("1 2")
 
     print_color("\n  Parsing", C.PINK)
-    cmd_error('""')
     cmd_parsing('"0 5 8 9"')
     cmd_parsing('"0 5 1 9 2"')
     cmd_parsing('"5 6 8 9"')
@@ -218,6 +219,8 @@ if 'evaluating' in sys.argv:
         cmd_error('"" 8 -1288')
         cmd_error('8 -12 ""')
         cmd_parsing('"0 5 9" 8')
+        cmd_parsing('"    +2 5 9" 8')
+        cmd_parsing('"    -2 5 9" 8')
         cmd_parsing('0 5 1 "9 2"')
         cmd_parsing('"5" 6 8 9')
         cmd_parsing('"9 5" 8 -1288')
@@ -290,6 +293,9 @@ elif 'leaks' in sys.argv:
     cmd_leaks('"5 6 8 9"')
     cmd_leaks('"9 5 8 -1288"')
     cmd_leaks('""')
+    cmd_leaks("-158 6 3+5")
+    cmd_leaks("-158 + 6 3 +")
+    cmd_leaks("+")
     if '-s' in sys.argv or '--strict' in sys.argv:
         cmd_leaks('"0 5 9" 8')
         cmd_leaks('0 5 1 "9 2"')
