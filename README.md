@@ -15,13 +15,13 @@ git clone https://github.com/Florian1215/Push_Swap-Tester.git
 ```sh
 python3 push_Swap-tester/push_swap.py evaluating
 ```
-```-s``` *for strick mode*
+```-s``` *for strict mode*
 
 ### Leaks test
 ```sh
 python3 push_Swap-tester/push_swap.py leaks
 ```
-*If they are a leaks, the program stop.*
+*If they are leaks, the program stops.*
 
 ***
 
