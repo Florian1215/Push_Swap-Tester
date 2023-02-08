@@ -7,15 +7,15 @@ import math
 int_min = -500
 int_max = 500
 
-dir_name = 'push_Swap-tester/'
-checker_path = f'./{dir_name}checker_Mac'
-abs_path = os.path.split(os.path.dirname(__file__))[0]
-push_swap_path = f'{abs_path}/push_swap'
-checker_bonus_path = f'{abs_path}/checker'
+
+# checker_name = 'checker_Mac'
+checker_name = 'checker_linux'
+
+checker_path = f'./Push_Swap-Tester/{checker_name}'
+push_swap_path = f'./push_swap'
+checker_bonus_path = f'./checker'
 
 make_file_cmd = 'make'
-if os.path.exists('../Makefile'):
-    make_file_cmd = 'make -C ../'
 os.popen(make_file_cmd).read()
 
 eval_pts = {100: {700: 5, 900: 4, 1100: 3, 1300: 2, 1500: 1}, 500: {5500: 5, 7000: 4, 8500: 3, 10000: 2, 11500: 1}}
