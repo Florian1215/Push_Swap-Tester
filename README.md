@@ -16,13 +16,13 @@ git clone https://github.com/Florian1215/Push_Swap-Tester.git
 
 ### Evaluating test
 ```sh
-python3 push_Swap-tester/push_swap.py evaluating
+python3 Push_Swap-Tester/push_swap.py evaluating
 ```
 ```-s``` *for strict mode*
 
 ### Leaks test
 ```sh
-python3 push_Swap-tester/push_swap.py leaks
+python3 Push_Swap-Tester/push_swap.py leaks
 ```
 *If they are leaks, the program stops.*
 
@@ -30,22 +30,22 @@ python3 push_Swap-tester/push_swap.py leaks
 
 ### Test with ***x*** args
 ```sh
-python3 push_Swap-tester/push_swap.py 500
+python3 Push_Swap-Tester/push_swap.py 500
 ```
 ```-a``` *for print args testing*
 
 ### Test many time ***x*** args
 ```sh
-python3 push_Swap-tester/push_swap.py 500 200
+python3 Push_Swap-Tester/push_swap.py 500 200
 ```
 
 ### Test all the combinaison of ***x*** args
 ```sh
-python3 push_Swap-tester/push_swap.py 5 all
+python3 Push_Swap-Tester/push_swap.py 5 all
 ```
 
 ***
 ### Generate random numbers
 ```sh
-python3 push_Swap-tester/push_swap.py random 20
+python3 Push_Swap-Tester/push_swap.py random 20
 ```

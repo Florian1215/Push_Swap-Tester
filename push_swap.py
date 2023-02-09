@@ -1,8 +1,8 @@
 import os
 import sys
+import math
 import random
 import subprocess
-import math
 
 int_min = -500
 int_max = 500
@@ -31,6 +31,12 @@ def get_pts(n, ct_):
         if ct_ < max_ins:
             return eval_pts[n][max_ins]
     return 0
+
+
+def remove_suffix(string):
+    if string and string[-1] == '\n':
+        return string[:-1]
+    return string
 
 
 # Color ----------------------------------------------------------
@@ -81,7 +87,7 @@ def cmd_error(args_):
 
 
 def cmd_nothing_return(args_):
-    c = cmd(args_).removesuffix('\n')
+    c = remove_suffix(cmd(args_))
     if c:
         error(f"Your program should return nothing with '{args_}', he return '{c}'")
     else:
@@ -115,8 +121,8 @@ def cmd(args_, stderror=False, sterr_msg=True):
 def cmd_check(args_):
     proc = subprocess.Popen(f'{push_swap_path} {args_} | {checker_path} {args_}', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
     if proc[1]:
-        return proc[1].decode().removesuffix('\n')
-    return proc[0].decode().removesuffix('\n')
+        return remove_suffix(proc[1].decode())
+    return remove_suffix(proc[0].decode())
 
 
 def cmd_count(args_):
