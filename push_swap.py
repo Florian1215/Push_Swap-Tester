@@ -87,11 +87,13 @@ def cmd_error(args_):
 
 
 def cmd_nothing_return(args_):
-    c = remove_suffix(cmd(args_))
-    if c:
-        error(f"Your program should return nothing with '{args_}', he return '{c}'")
-    else:
-        print_color("\tOK", C.GREEN, False)
+    for boolean in (False, True):
+        c = remove_suffix(cmd(args_, boolean, False))
+        if c:
+            error(f"Your program should return nothing with '{args_}', he return '{c}'")
+            break
+        else:
+            print_color("\tOK", C.GREEN, False)
 
 
 def cmd_parsing(args_):
