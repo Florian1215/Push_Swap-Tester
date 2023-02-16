@@ -21,7 +21,8 @@ os.popen(make_file_cmd).read()
 eval_pts = {100: {700: 5, 900: 4, 1100: 3, 1300: 2, 1500: 1}, 500: {5500: 5, 7000: 4, 8500: 3, 10000: 2, 11500: 1}}
 
 
-# General --------------------------------------------------------
+
+# General -----------------------------------------------------------
 def get_random_number(k_, all_range=False):
     return ' '.join([str(nb) for nb in random.sample(range(int_min, int_max) if all_range else range(0, k_), k=k_)])
 
@@ -39,7 +40,7 @@ def remove_suffix(string):
     return string
 
 
-# Color ----------------------------------------------------------
+# Color -------------------------------------------------------------
 class C:
     GREY = 90
     RED = 91
@@ -63,7 +64,7 @@ def print_args(ct_, args_check_):
         print_color(f'  -  {args_check_}', C.GREY)
 
 
-# Error ----------------------------------------------------------
+# Error -------------------------------------------------------------
 def error(string_):
     if not C.NL:
         print()
@@ -109,7 +110,7 @@ def cmd_leaks(args_):
         exit()
 
 
-# CMD ------------------------------------------------------------
+# CMD ---------------------------------------------------------------
 def cmd(args_, stderror=False, sterr_msg=True):
     proc = subprocess.Popen(f'{push_swap_path} {args_}', shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE).communicate()
     if stderror:
@@ -165,73 +166,34 @@ def cmd_all_n(n):
     return all_count
 
 
-# CODE ---------------------------------------------------------------
-
+# CODE --------------------------------------------------------------
 if not os.path.exists(push_swap_path) or not os.path.exists(checker_path):
     error(f'don\'t find {push_swap_path} or {checker_path}')
     exit()
 
+checks = {'Non numeric': {'func': cmd_error,
+                          'test': ['559 3 sdf9', '5hj 45 6 4', '5 45 6hj 4', '5 45 6 4 a', '5 45 48 s', '69 425 one 1',
+                                   '5 4-5 6 58', '2 45 6 -', '2 - 6 3', '- 6 3', '1-2 6 3', '-158 6 3-5', '--15 59 66',
+                                   '1 5 9 44 + 2 4', '1 2- 3', '++15 214 3', '7 2+ 3', '""', '8 -12 ""', '"" 8 -1288',
+                                   '0 "" 95 -11', '0 5 8 9 ""']},
+          'Duplicate args': {'func': cmd_error,
+                             'test': ['2 6 3 6', '1 1 2 4 5', '6 6 3', '3 6 3', '1 6 8 4 2 3 +1', '-4 2 6 7 9 11 11 15 86 1848', '4 2 6 7 9 11 15 86 1848 1848', '4 2 +4 +4']},
+          'Max INT': {'func': cmd_error,
+                      'test': ['1 2147483648 8 4 2 3', '1 6 8 2147483649 2 3', '1 6 -2147483649 4 2 3', '-2147483649 1 6 8 4 2 3']},
+          'Nothing to return': {'func': cmd_nothing_return,
+                                'test': ['', '42', '30', '-5', '0 1 2 3', '-185 26 48 8546', '0 1 2 3 +4 5 6 7 +8 9 10 11', '-554949 -2549 -695 15 45948 545498', '548 9898', '1 2']},
+          'Parsing': {'func': cmd_parsing,
+                      'test': ['5 +4 -659', '+8498 70 -4659', '"0 5 8 9"', '"0 5 1 9 2"', '"5 6 8 9"', '"9 5 8 -1288"', '"0 5 9" 8', '"    +2 5 9" 8', '"    -2 5 9" 8', '0 5 1 "9 2"', '"5" 6 8 9', '"9 5" 8 -1288', '""""']}
+          }
+
 if 'evaluating' in sys.argv:
     print_color("\n→ Error management:", C.BLUE, False)
 
-    print_color("\n  Non numeric", C.PINK)
-    cmd_error("559 3 sdf9")
-    cmd_error("5hj 45 6 4")
-    cmd_error("5 45 6hj 4")
-    cmd_error("5 45 6 4 a")
-    cmd_error("5 45 48 s")
-    cmd_error("69 425 one 1")
-    cmd_error("5 4-5 6 58")
-    cmd_error("2 45 6 -")
-    cmd_error("2 - 6 3")
-    cmd_error("- 6 3")
-    cmd_error("1-2 6 3")
-    cmd_error("-158 6 3-5")
+    for title, val in checks.items():
+        print_color(f"\n  {title}", C.PINK)
 
-    cmd_error('""')
-
-    print_color("\n  Duplicate args", C.PINK)
-    cmd_error("2 6 3 6")
-    cmd_error("6 6 3")
-    cmd_error("3 6 3")
-    cmd_error("1 6 8 4 2 3 1")
-    cmd_error("-4 2 6 7 9 11 11 15 86 1848")
-    cmd_error("-4 2 6 7 9 11 15 86 1848 1848")
-
-    print_color("\n  Max INT", C.PINK)
-    cmd_error("1 2147483648 8 4 2 3")
-    cmd_error("1 6 8 2147483649 2 3")
-    cmd_error("1 6 -2147483649 4 2 3")
-    cmd_error("-2147483649 1 6 8 4 2 3")
-
-    print_color("\n  Nothing to return", C.PINK)
-    cmd_nothing_return("")
-    cmd_nothing_return("42")
-    cmd_nothing_return("30")
-    cmd_nothing_return("-5")
-    cmd_nothing_return("0 1 2 3")
-    cmd_nothing_return("-185 26 48 8546")
-    cmd_nothing_return("0 1 2 3 4 5 6 7 8 9 10 11")
-    cmd_nothing_return("-554949 -2549 -695 15 45948 545498")
-    cmd_nothing_return("548 9898")
-    cmd_nothing_return("1 2")
-
-    print_color("\n  Parsing", C.PINK)
-    cmd_parsing('"0 5 8 9"')
-    cmd_parsing('"0 5 1 9 2"')
-    cmd_parsing('"5 6 8 9"')
-    cmd_parsing('"9 5 8 -1288"')
-    if '-s' in sys.argv or '--strict' in sys.argv:
-        cmd_error('0 5 8 9 ""')
-        cmd_error('0 "" 95 -11')
-        cmd_error('"" 8 -1288')
-        cmd_error('8 -12 ""')
-        cmd_parsing('"0 5 9" 8')
-        cmd_parsing('"    +2 5 9" 8')
-        cmd_parsing('"    -2 5 9" 8')
-        cmd_parsing('0 5 1 "9 2"')
-        cmd_parsing('"5" 6 8 9')
-        cmd_parsing('"9 5" 8 -1288')
+        for test in val['test']:
+            val['func'](test)
 
     print_color("\n\n→ Simple version:", C.BLUE, False)
 
@@ -264,54 +226,10 @@ if 'evaluating' in sys.argv:
             ko(f'you KO all you sort {length} args')
 
 elif 'leaks' in sys.argv:
-
     print_color("→ Leaks Error\n", C.BLUE)
-    cmd_leaks("559 3 sdf9")
-    cmd_leaks("5hj 45 6 4")
-    cmd_leaks("5 45 6hj 4")
-    cmd_leaks("5 45 6 4 a")
-    cmd_leaks("5 45 48 s")
-    cmd_leaks("69 425 one 1")
-    cmd_leaks("5 4-5 6 58")
-    cmd_leaks("2 45 6 -")
-    cmd_leaks("2 - 6 3")
-    cmd_leaks("- 6 3")
-    cmd_leaks("2 6 3 6")
-    cmd_leaks("6 6 3")
-    cmd_leaks("3 6 3")
-    cmd_leaks("1 6 8 4 2 3 1")
-    cmd_leaks("-4 2 6 7 9 11 11 15 86 1848")
-    cmd_leaks("-4 2 6 7 9 11 15 86 1848 1848")
-    cmd_leaks("1 2147483648 8 4 2 3")
-    cmd_leaks("1 6 8 2147483649 2 3")
-    cmd_leaks("1 6 -2147483649 4 2 3")
-    cmd_leaks("-2147483649 1 6 8 4 2 3")
-    cmd_leaks("")
-    cmd_leaks("42")
-    cmd_leaks("30")
-    cmd_leaks("-5")
-    cmd_leaks("0 1 2 3")
-    cmd_leaks("-185 26 48 8546")
-    cmd_leaks("0 1 2 3 4 5 6 7 8 9 10 11")
-    cmd_leaks("-554949 -2549 -695 15 45948 545498")
-    cmd_leaks("548 9898")
-    cmd_leaks("1 2")
-    cmd_leaks('"0 5 8 9"')
-    cmd_leaks('"0 5 1 9 2"')
-    cmd_leaks('"5 6 8 9"')
-    cmd_leaks('"9 5 8 -1288"')
-    cmd_leaks('""')
-    cmd_leaks("-158 6 3+5")
-    cmd_leaks("-158 + 6 3 +")
-    cmd_leaks("+")
-    if '-s' in sys.argv or '--strict' in sys.argv:
-        cmd_leaks('"0 5 9" 8')
-        cmd_leaks('0 5 1 "9 2"')
-        cmd_leaks('"5" 6 8 9')
-        cmd_leaks('"9 5" 8 -1288')
-        cmd_leaks('"" 8 -1288')
-        cmd_leaks('8 -12 ""')
-        cmd_leaks('-2 "" 4 ""')
+    for val in checks.values():
+        for test in val['test']:
+            cmd_leaks(test)
 
     for k in (3, 5, 10, 50, 100, 500):
         for _ in range(10):

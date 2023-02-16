@@ -18,7 +18,7 @@ git clone https://github.com/Florian1215/Push_Swap-Tester.git
 ```sh
 python3 Push_Swap-Tester/push_swap.py evaluating
 ```
-```-s``` *for strict mode*
+
 
 ### Leaks test
 ```sh
